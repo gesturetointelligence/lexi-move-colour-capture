@@ -148,7 +148,7 @@ export function PresetsRow({
                 style={{ backgroundColor: preset.card, color: preset.text }}
                 aria-hidden="true"
               >
-                Aa
+                <span className="swatch-aa">Aa</span>
               </span>
             </button>
           </motion.div>

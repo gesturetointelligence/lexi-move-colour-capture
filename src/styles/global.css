@@ -134,7 +134,7 @@ input:focus-visible {
   display: flex;
   align-items: flex-end;
   width: 100%;
-  min-height: 42vh;
+  aspect-ratio: 1158 / 1380;
   border-radius: 24px;
   padding: 28px;
   font-size: 44px;
@@ -210,6 +210,13 @@ input:focus-visible {
   justify-content: center;
   font-weight: 600;
   font-size: 17px;
+  line-height: 1;
+}
+
+/* "Aa" has no descenders — nudge down so it sits optically centred. */
+.preset-swatch .swatch-aa {
+  display: block;
+  transform: translateY(0.5px);
 }
 
 .preset-add {
@@ -277,9 +284,15 @@ input:focus-visible {
 }
 
 .control-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(125, 130, 126, 0.18);
+  border: 1px solid var(--hairline);
   display: flex;
   align-items: center;
   justify-content: center;
+  flex: 0 0 auto;
 }
 
 /* Brand colour dot with native picker layered over it. */
