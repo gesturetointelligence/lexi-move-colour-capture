@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'lexi-play.json'
+  workflow_dispatch:
 
 jobs:
   register:
