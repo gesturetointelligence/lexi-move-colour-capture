@@ -314,21 +314,6 @@ input:focus-visible {
   padding: 0;
 }
 
-.capture-controls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.capture-thumb {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  object-fit: cover;
-  border: 1px solid var(--separator);
-  display: block;
-}
-
 .icon-btn-44 {
   width: 44px;
   height: 44px;
@@ -558,4 +543,35 @@ input:focus-visible {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* Capture row: single full-width picker button, icon centred. */
+.capture-row-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 56px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.15s ease-out;
+}
+.capture-row-btn:active {
+  background-color: rgba(125, 130, 126, 0.14);
+}
+
+/* Overlay footer: shutter + photo-library side by side. */
+.capture-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.capture-actions .capture-shutter {
+  flex: 1;
+}
+.capture-actions .icon-btn-44 {
+  flex: none;
+  background-color: rgba(125, 130, 126, 0.18);
 }

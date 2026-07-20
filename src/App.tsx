@@ -105,7 +105,6 @@ export default function App() {
   // Explore state (in-memory; the theme itself is what persists)
   const [combos, setCombos] = useState<Combo[] | null>(null)
   const [comboIndex, setComboIndex] = useState(0)
-  const [captureThumb, setCaptureThumb] = useState<string | null>(null)
   const [captureCount, setCaptureCount] = useState(0)
   const [newestPresetId, setNewestPresetId] = useState<string | null>(null)
   const [overlay, setOverlay] = useState<OverlayState>(null)
@@ -143,15 +142,15 @@ export default function App() {
     DialStore.registerPanel(PANEL_ID, 'Engine', {
       engine: {
         colorCount: [defaultTuning.colorCount, 4, 24, 1],
-        maxSamples: [defaultTuning.maxSamples, 1000, 40000, 1000],
+        maxSamples: [defaultTuning.maxSamples, 1000, 100000, 1000],
       },
       scoring: {
         minContrast: [defaultTuning.minContrast, 1, 10, 0.1],
         idealContrast: [defaultTuning.idealContrast, 4.5, 21, 0.5],
         popWeight: [defaultTuning.popWeight, 0, 3, 0.1],
-        chromaWeight: [defaultTuning.chromaWeight, 0, 3, 0.1],
-        harmonyWeight: [defaultTuning.harmonyWeight, 0, 3, 0.1],
-        diversityDistance: [defaultTuning.diversityDistance, 0, 200, 5],
+        chromaWeight: [defaultTuning.chromaWeight, 0, 6, 0.1],
+        harmonyWeight: [defaultTuning.harmonyWeight, 0, 6, 0.1],
+        diversityDistance: [defaultTuning.diversityDistance, 0, 400, 5],
       },
       recompute: { type: 'action', label: 'Recompute combos' },
     })
@@ -182,10 +181,9 @@ export default function App() {
   // ---- Handlers ----
 
   const handleCaptured = useCallback(
-    (palette: PaletteEntry[], thumb: string | null) => {
+    (palette: PaletteEntry[]) => {
       setOverlay(null)
       paletteRef.current = palette
-      if (thumb) setCaptureThumb(thumb)
       const generated = generateCombos(palette, 8, tuningRef.current)
       if (generated.length) {
         applyCombos(generated)
@@ -252,11 +250,9 @@ export default function App() {
         <CustomGroup
           cardColor={theme.cardColor}
           textColor={theme.textColor}
-          captureThumb={captureThumb}
           onCardColor={(hex) => setTheme({ cardColor: hex })}
           onTextColor={(hex) => setTheme({ textColor: hex })}
-          onOpenCamera={() => setOverlay({ mode: 'camera' })}
-          onPhotoPicked={handlePhotoPicked}
+          onOpenCapture={() => setOverlay({ mode: 'camera' })}
         />
         <h2 className="section-header">Fonts</h2>
         <FontsSection
@@ -277,6 +273,7 @@ export default function App() {
             tuning={tuning}
             onClose={() => setOverlay(null)}
             onCaptured={handleCaptured}
+            onPickPhoto={handlePhotoPicked}
           />
         )}
       </AnimatePresence>

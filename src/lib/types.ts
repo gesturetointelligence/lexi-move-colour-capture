@@ -23,18 +23,23 @@ export interface EngineTuning {
   popWeight: number // dominant-colour reward for the card slot (default 1)
   chromaWeight: number // saturation reward / mud penalty (default 1)
   harmonyWeight: number // analogous/complementary bonus (default 0.5)
-  diversityDistance: number // min RGB distance between selected card colours (default 60)
+  diversityDistance: number // min perceptual (OKLab ×400) distance between selected combos (default 60)
 }
 
+// Ravi + Wayne's preferred judging, 2026-07-20: gate wide open (aesthetics
+// over legibility), moderate-contrast peak, colour-forward. diversityDistance
+// recalibrated for the max-min selector (their 200 was set under the old
+// threshold selector, where it degraded to no-op): 100 keeps the palette-
+// crossing character while guaranteeing 8 visually distinct combos.
 export const defaultTuning: EngineTuning = {
-  colorCount: 12,
-  maxSamples: 10000,
-  minContrast: 4.5,
-  idealContrast: 10,
-  popWeight: 1,
-  chromaWeight: 1,
-  harmonyWeight: 0.5,
-  diversityDistance: 60,
+  colorCount: 8,
+  maxSamples: 40000,
+  minContrast: 1,
+  idealContrast: 4.5,
+  popWeight: 0.5,
+  chromaWeight: 3,
+  harmonyWeight: 3,
+  diversityDistance: 200,
 }
 
 export interface Preset {

@@ -110,35 +110,9 @@ const hueDistance = (h1: number, h2: number): number => {
   return d > 180 ? 360 - d : d
 }
 
-/** sRGB → OKLab (Björn Ottosson's reference constants). */
-function rgbToOklab([r, g, b]: RGB): [number, number, number] {
-  const lin = (c: number): number => {
-    const n = c / 255
-    return n <= 0.04045 ? n / 12.92 : ((n + 0.055) / 1.055) ** 2.4
-  }
-  const lr = lin(r)
-  const lg = lin(g)
-  const lb = lin(b)
-  const l = Math.cbrt(0.4122214708 * lr + 0.5363325363 * lg + 0.0514459929 * lb)
-  const m = Math.cbrt(0.2119034982 * lr + 0.6806995451 * lg + 0.1073969566 * lb)
-  const s = Math.cbrt(0.0883024619 * lr + 0.2817188376 * lg + 0.6299787005 * lb)
-  return [
-    0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s,
-    1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s,
-    0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s,
-  ]
-}
-
-/**
- * Perceptual colour difference: OKLab ΔE scaled ×400 so its useful range
- * (~0–0.4 between typical distinct colours) lands on the same 0–200 dial as
- * the old raw-RGB distance the `diversityDistance` tuning was calibrated for.
- */
-function perceptualDistance(a: RGB, b: RGB): number {
-  const [l1, a1, b1] = rgbToOklab(a)
-  const [l2, a2, b2] = rgbToOklab(b)
-  return 400 * Math.sqrt((l1 - l2) ** 2 + (a1 - a2) ** 2 + (b1 - b2) ** 2)
-}
+/** Euclidean distance in raw RGB space (simple ΔE proxy, max ≈ 441). */
+const rgbDistance = (a: RGB, b: RGB): number =>
+  Math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2 + (a[2] - b[2]) ** 2)
 
 // ---------------------------------------------------------------------------
 // samplePixels — DOM source → packed RGBA bytes
@@ -437,11 +411,8 @@ const pairKey = (card: string, text: string): string => `${card}|${text}`
 
 /** Contrast score: peaks at idealContrast, mild penalty toward both extremes. */
 const contrastScore = (contrast: number, ideal: number): number => {
-  // Asymmetric bell around the ideal: falling short of it costs legibility,
-  // so it drops ~2.5× faster than overshooting (which is merely bland).
   const d = (contrast - ideal) / ideal
-  const shaped = d < 0 ? d * 2.5 : d
-  return 1 / (1 + shaped * shaped)
+  return 1 / (1 + d * d)
 }
 
 /** Chroma reward via HSL: true chroma (1 − |2L − 1|) · S, with a mud penalty for desaturated mid-greys. */
@@ -479,6 +450,9 @@ function scorePair(
 const byScoreDesc = (a: Candidate, b: Candidate): number =>
   b.score - a.score || a.card.localeCompare(b.card) || a.text.localeCompare(b.text)
 
+/** Text polarity: true when the text is lighter than the card (light-on-dark). */
+const isLightOnDark = (c: Candidate): boolean =>
+  relativeLuminance(c.textRgb) > relativeLuminance(c.cardRgb)
 
 /**
  * Generates exactly `count` scored card/text colour combos from a palette,
@@ -487,13 +461,12 @@ const byScoreDesc = (a: Candidate, b: Candidate): number =>
  * Candidates are every ordered palette pair plus, per palette colour, two
  * derived hue-tinted inks (near-black and near-white). Scoring combines a
  * WCAG contrast gate/curve, card-population dominance, chroma reward, and
- * hue harmony — all weights come from `tuning`. A greedy max-min diversity
- * pass keeps the selection visually distinct: each pick maximises score plus
- * `tuning.diversityDistance`-weighted perceptual (OKLab) distance to the
- * combos already picked, and no card colour repeats while avoidable.
+ * hue harmony — all weights come from `tuning`. A greedy diversity pass keeps
+ * the selection visually distinct (card colours at least
+ * `tuning.diversityDistance` apart in RGB unless text polarity differs).
  *
- * The count is guaranteed: selection never rejects candidates outright, and
- * monochrome input is padded with derived-ink pairs
+ * The count is guaranteed: the diversity threshold relaxes progressively on
+ * sparse palettes, and monochrome input is padded with derived-ink pairs
  * (lowering the contrast gate for padding only if even those cannot clear
  * it). Returns [] only for an empty palette.
  */
@@ -544,65 +517,24 @@ export function generateCombos(
     addCandidate(makeCandidate(a.hex, lightInk(a.hex), a.population, false))
   }
 
-  // Legibility criterion, independent of the user's aesthetic contrast gate:
-  // WCAG contrast underestimates chromatic legibility, so a pair passes when
-  // EITHER its luminance contrast or its perceptual colour difference is
-  // sufficient. Applied here so the diversity selection never has to pick an
-  // unreadable pair (which the harmony bonus would otherwise happily score up
-  // on same-hue tone-on-tone pairs).
-  const LEGIBLE_CONTRAST = 1.8
-  const LEGIBLE_DELTA = 100
-  const legible = (c: Candidate): boolean =>
-    c.contrast >= LEGIBLE_CONTRAST ||
-    perceptualDistance(c.cardRgb, c.textRgb) >= LEGIBLE_DELTA
+  const gated = candidates.filter((c) => c.contrast >= tuning.minContrast).sort(byScoreDesc)
 
-  const gated = candidates
-    .filter((c) => c.contrast >= tuning.minContrast && legible(c))
-    .sort(byScoreDesc)
-
-  // --- Greedy max-min diversity selection (farthest-point style). ---
-  // Two combos read alike when the WHOLE pairing does: perceptual (OKLab)
-  // distance over card + text combined. Each pick maximises
-  // score + λ·(min distance to the picks so far), where λ comes from the
-  // diversityDistance dial (0 = pure score order). Unlike a hard threshold
-  // this never collapses — it trades score for spread continuously. The card
-  // dominates the visual, so a card hex is never reused while candidates with
-  // unused cards remain.
-  const comboDistance = (a: Candidate, b: Candidate): number =>
-    perceptualDistance(a.cardRgb, b.cardRgb) + 0.4 * perceptualDistance(a.textRgb, b.textRgb)
-
-  // Distances beyond the cap stop paying: diversity means "distinct enough",
-  // not "maximally distant" — past this, score decides again.
-  const DIST_CAP = 220
-  // Repeating a text colour flattens the set even when the cards differ —
-  // each prior use of the same text costs a fixed score penalty.
-  const TEXT_REUSE_PENALTY = 1.2
-  const lambda = tuning.diversityDistance / 100
-  const selected: Candidate[] = []
-  const pool = [...gated]
-  const textUse = new Map<string, number>()
-  while (selected.length < count && pool.length) {
-    const usedCards = new Set(selected.map((c) => c.card))
-    const fresh = pool.filter((c) => !usedCards.has(c.card))
-    const eligible = fresh.length ? fresh : pool
-    let best: Candidate = eligible[0]
-    let bestVal = -Infinity
-    for (const c of eligible) {
-      const minDist = selected.length
-        ? Math.min(...selected.map((p) => comboDistance(p, c)))
-        : 0
-      const val =
-        c.score +
-        (lambda * Math.min(minDist, DIST_CAP)) / 100 -
-        TEXT_REUSE_PENALTY * (textUse.get(c.text) ?? 0)
-      if (val > bestVal) {
-        bestVal = val
-        best = c
-      }
+  // --- Greedy diversity selection, relaxing the threshold until count met. ---
+  let selected: Candidate[] = []
+  for (const relax of [1, 0.5, 0.25, 0]) {
+    const distance = tuning.diversityDistance * relax
+    const picked: Candidate[] = []
+    for (const c of gated) {
+      if (picked.length >= count) break
+      const clash = picked.some(
+        (p) =>
+          rgbDistance(p.cardRgb, c.cardRgb) < distance &&
+          isLightOnDark(p) === isLightOnDark(c),
+      )
+      if (!clash) picked.push(c)
     }
-    pool.splice(pool.indexOf(best), 1)
-    selected.push(best)
-    textUse.set(best.text, (textUse.get(best.text) ?? 0) + 1)
+    selected = picked
+    if (selected.length >= count) break
   }
 
   // --- Padding: derived-ink pairs guarantee the count on monochrome input. ---

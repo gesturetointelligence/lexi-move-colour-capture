@@ -1,6 +1,3 @@
-import { useRef } from 'react'
-import type { ChangeEvent } from 'react'
-import { motion, useReducedMotion } from 'motion/react'
 import { toInputHex } from '../lib/presets'
 
 interface ColourWheelProps {
@@ -29,7 +26,7 @@ function ColourWheel({ value, label, onChange }: ColourWheelProps) {
   )
 }
 
-function CameraIcon() {
+function EyedropperIcon() {
   return (
     <svg
       width="22"
@@ -42,28 +39,9 @@ function CameraIcon() {
       strokeLinejoin="round"
       aria-hidden="true"
     >
-      <path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.3l.95-1.52A1.5 1.5 0 0 1 10.02 3.75h3.96a1.5 1.5 0 0 1 1.27.73L16.2 6h1.3A2.5 2.5 0 0 1 20 8.5v8a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5v-8Z" />
-      <circle cx="12" cy="12.5" r="3.5" />
-    </svg>
-  )
-}
-
-function PhotosIcon() {
-  return (
-    <svg
-      width="22"
-      height="22"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="#FFFFFF"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <rect x="4" y="5" width="16" height="14" rx="3" />
-      <circle cx="9.2" cy="10" r="1.6" />
-      <path d="m4.5 16.5 4-4 3 3 3.5-3.5 4.5 4.5" />
+      <path d="m13.2 7.3 3.5 3.5" />
+      <path d="M6 21c-1.1.35-2.35-.9-2-2l.7-2.1a3 3 0 0 1 .72-1.17l7.28-7.28 3.85 3.85-7.28 7.28A3 3 0 0 1 8.1 20.3L6 21Z" />
+      <path d="M14.5 6 17 3.5a2.47 2.47 0 0 1 3.5 3.5L18 9.5" />
     </svg>
   )
 }
@@ -71,38 +49,18 @@ function PhotosIcon() {
 interface Props {
   cardColor: string
   textColor: string
-  /** Small provenance thumbnail of the last capture, if any. */
-  captureThumb: string | null
   onCardColor: (hex: string) => void
   onTextColor: (hex: string) => void
-  onOpenCamera: () => void
-  onPhotoPicked: (dataUrl: string) => void
+  onOpenCapture: () => void
 }
 
 export function CustomGroup({
   cardColor,
   textColor,
-  captureThumb,
   onCardColor,
   onTextColor,
-  onOpenCamera,
-  onPhotoPicked,
+  onOpenCapture,
 }: Props) {
-  const fileRef = useRef<HTMLInputElement | null>(null)
-  const reduced = useReducedMotion()
-
-  const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    // Reset so picking the same photo again still fires change.
-    e.target.value = ''
-    if (!file) return
-    const reader = new FileReader()
-    reader.onload = () => {
-      if (typeof reader.result === 'string') onPhotoPicked(reader.result)
-    }
-    reader.readAsDataURL(file)
-  }
-
   return (
     <div className="custom-group">
       <div className="custom-row">
@@ -115,48 +73,14 @@ export function CustomGroup({
         <ColourWheel value={textColor} label="Text colour" onChange={onTextColor} />
       </div>
       <div className="custom-divider" aria-hidden="true" />
-      <div className="custom-row">
-        <span className="custom-label">Capture</span>
-        <span className="capture-controls">
-          {captureThumb && (
-            <motion.img
-              className="capture-thumb"
-              src={captureThumb}
-              alt="Last captured frame"
-              initial={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.6 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={
-                reduced
-                  ? { duration: 0.01 }
-                  : { type: 'spring', visualDuration: 0.3, bounce: 0.2 }
-              }
-            />
-          )}
-          <button
-            type="button"
-            className="icon-btn-44"
-            aria-label="Capture colours with the camera"
-            onClick={onOpenCamera}
-          >
-            <CameraIcon />
-          </button>
-          <button
-            type="button"
-            className="icon-btn-44"
-            aria-label="Pick colours from a photo"
-            onClick={() => fileRef.current?.click()}
-          >
-            <PhotosIcon />
-          </button>
-          <input
-            ref={fileRef}
-            type="file"
-            accept="image/*"
-            hidden
-            onChange={handleFile}
-          />
-        </span>
-      </div>
+      <button
+        type="button"
+        className="capture-row-btn"
+        aria-label="Pick colours from the camera or a photo"
+        onClick={onOpenCapture}
+      >
+        <EyedropperIcon />
+      </button>
     </div>
   )
 }
