@@ -1,0 +1,561 @@
+/* Colour Capture — global styles. Fidelity values from Lexi Magic Themes (dark). */
+
+:root {
+  --bg: #000000;
+  --group: #1c1c1e;
+  --label: #ffffff;
+  --secondary-label: #ebebf599;
+  --separator: #54545999;
+  --fill: rgba(120, 120, 128, 0.24);
+  --font-body: -apple-system, BlinkMacSystemFont, system-ui, 'Helvetica Neue', 'Segoe UI', sans-serif;
+  --font-rounded: ui-rounded, 'SF Pro Rounded', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--label);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+button:disabled {
+  cursor: default;
+}
+
+button:focus,
+input:focus {
+  outline: none;
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.6);
+  outline-offset: 2px;
+}
+
+/* ---- Screen scaffold ---- */
+
+.screen {
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+.screen::-webkit-scrollbar {
+  display: none;
+}
+
+.content {
+  max-width: 430px;
+  margin: 0 auto;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.section-header {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--secondary-label);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin: 18px 0 0 4px;
+}
+
+/* Horizontal rows bleed to the screen edge */
+.h-row {
+  display: flex;
+  gap: 8px;
+  padding: 2px 16px;
+  margin: 0 -16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.h-row::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---- Nav header ---- */
+
+.nav-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 52px;
+}
+
+.nav-back {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 22px;
+  background: rgba(142, 142, 147, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--label);
+}
+
+/* ---- Preview card ---- */
+
+.preview-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.preview-card {
+  position: relative;
+  display: block;
+  width: 100%;
+  border-radius: 24px;
+  border: 1px solid var(--separator);
+  padding: 28px 24px;
+  font-size: 34px;
+  line-height: 1.15;
+  text-align: left;
+}
+
+.explore-pill {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: max-content;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1px;
+  color: #ffffff;
+  background: rgba(0, 0, 0, 0.4);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  padding: 6px 12px;
+  pointer-events: none;
+}
+
+.explore-dots {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+}
+
+.explore-dots .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.25);
+  transition: background-color 0.2s ease;
+}
+
+/* ---- COLOURS presets ---- */
+
+.preset-ring {
+  flex: 0 0 auto;
+  width: 64px;
+  height: 64px;
+  border-radius: 32px;
+  border: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preset-ring[data-selected='true'] {
+  border-color: #ffffff;
+}
+
+.preset-circle {
+  width: 54px;
+  height: 54px;
+  border-radius: 27px;
+  border: 1px solid var(--separator);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-rounded);
+  font-weight: 600;
+  font-size: 17px;
+}
+
+.add-circle {
+  width: 54px;
+  height: 54px;
+  border-radius: 27px;
+  border: 1px dashed var(--separator);
+  background: var(--group);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---- Card / Text / Capture group ---- */
+
+.custom-group {
+  background: var(--group);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.custom-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 16px;
+  padding-right: 12px;
+  height: 56px;
+}
+
+.custom-label {
+  font-size: 17px;
+  color: var(--label);
+}
+
+.custom-divider {
+  height: 1px;
+  background: var(--separator);
+  margin-left: 16px;
+}
+
+.colour-wheel {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+}
+
+.wheel-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(
+    #ff0000,
+    #ffff00,
+    #00ff00,
+    #00ffff,
+    #0000ff,
+    #ff00ff,
+    #ff0000
+  );
+}
+
+.wheel-centre {
+  position: absolute;
+  inset: 5px;
+  border-radius: 50%;
+  border: 1px solid var(--separator);
+}
+
+.colour-wheel input[type='color'] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  border: 0;
+  padding: 0;
+}
+
+.capture-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.capture-thumb {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid var(--separator);
+  display: block;
+}
+
+.icon-btn-44 {
+  width: 44px;
+  height: 44px;
+  border-radius: 22px;
+  background: var(--fill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+/* ---- FONTS ---- */
+
+.font-chip {
+  flex: 0 0 auto;
+  min-width: 96px;
+  height: 64px;
+  padding: 0 16px;
+  border-radius: 16px;
+  background: var(--group);
+  border: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: var(--label);
+  white-space: nowrap;
+}
+
+.font-chip[data-selected='true'] {
+  border-color: #ffffff;
+}
+
+.segmented {
+  height: 44px;
+  background: var(--group);
+  border-radius: 9px;
+  padding: 2px;
+  display: flex;
+}
+
+.segment {
+  flex: 1;
+  position: relative;
+  border-radius: 7px;
+  font-size: 15px;
+  color: var(--label);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.segment-pill {
+  position: absolute;
+  inset: 0;
+  background: #636366;
+  border-radius: 7px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+.segment-label {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- ICONS ---- */
+
+.icon-ring {
+  flex: 0 0 auto;
+  width: 64px;
+  height: 64px;
+  border-radius: 17.9px;
+  border: 2px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-ring[data-selected='true'] {
+  border-color: #ffffff;
+}
+
+.icon-squircle {
+  width: 54px;
+  height: 54px;
+  border-radius: 12.1px;
+  border: 1px solid var(--separator);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---- Capture overlay ---- */
+
+.capture-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(16px + env(safe-area-inset-top)) 16px
+    calc(16px + env(safe-area-inset-bottom));
+}
+
+.capture-sheet {
+  width: 100%;
+  max-width: 430px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.capture-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.capture-title {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.capture-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
+  background: var(--fill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.viewfinder {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: 24px;
+  overflow: hidden;
+  background: var(--group);
+  border: 1px solid var(--separator);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.viewfinder video,
+.viewfinder img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.capture-error {
+  padding: 24px;
+  text-align: center;
+  color: var(--secondary-label);
+  font-size: 15px;
+  line-height: 1.4;
+  max-width: 280px;
+}
+
+.palette-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+}
+
+.palette-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  flex: 0 0 auto;
+}
+
+.capture-shutter {
+  height: 50px;
+  border-radius: 25px;
+  background: #ffffff;
+  color: #000000;
+  font-size: 17px;
+  font-weight: 600;
+  width: 100%;
+  transition: opacity 0.2s ease;
+}
+
+.capture-shutter:disabled {
+  opacity: 0.4;
+}
+
+/* ---- DialKit Lexi overrides ---- */
+
+.dialkit-root {
+  --dial-glass-bg: #151715;
+  --dial-dropdown-bg: #1e201e;
+  --dial-surface: rgba(125, 130, 126, 0.06);
+  --dial-surface-hover: rgba(125, 130, 126, 0.12);
+  --dial-surface-active: rgba(125, 130, 126, 0.18);
+  --dial-text-root: #f8f9f9;
+  --dial-text-section: #7d827e;
+  --dial-text-label: #7d827e;
+  --dial-border: rgba(125, 130, 126, 0.2);
+  --dial-border-hover: rgba(125, 130, 126, 0.35);
+  --dial-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  --dial-text-focus: #d0e62c;
+  --dial-text-primary: #f8f9f9;
+  --dial-text-secondary: rgba(248, 249, 249, 0.7);
+  --dial-text-tertiary: rgba(125, 130, 126, 0.6);
+  --dial-surface-subtle: rgba(125, 130, 126, 0.04);
+}
+
+/* ---- Reduced motion ---- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

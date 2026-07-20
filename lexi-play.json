@@ -1,0 +1,11 @@
+{
+  "name": "Colour Capture",
+  "slug": "colour-capture",
+  "description": "Capturing card and text colours from live camera and photo library, with eight algorithmically judged combinations looped through a tappable preview card.",
+  "date": "2026-07-20",
+  "authors": ["ravi"],
+  "medium": "interactive",
+  "tags": ["colour", "camera", "photo-library", "median-cut", "themes", "magic"],
+  "demo_url": "https://gesturetointelligence.github.io/lexi-move-colour-capture/",
+  "status": "active"
+}
