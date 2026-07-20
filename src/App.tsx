@@ -9,76 +9,74 @@ import type { Combo, EngineTuning, PaletteEntry, Preset } from './lib/types'
 import { CURATED_PRESETS, addCapturedPreset } from './lib/presets'
 import { useLocalStorage } from './hooks/useLocalStorage'
 
-import { NavHeader } from './components/NavHeader'
 import { PreviewCard } from './components/PreviewCard'
 import { PresetsRow } from './components/PresetsRow'
-import { CustomGroup } from './components/CustomGroup'
+import { Controls } from './components/Controls'
 import { CaptureOverlay } from './components/CaptureOverlay'
-import { FontsSection } from './components/FontsSection'
-import { IconsRow } from './components/IconsRow'
-import type { FontKey, FontWeightKey } from './components/FontsSection'
 
 // ---- Persisted state (versioned) ----
 
-export interface ThemeState {
-  cardColor: string
-  textColor: string
-  cardFont: FontKey
-  cardFontWeight: FontWeightKey
-}
-
 interface PersistedState {
-  version: 1
-  theme: ThemeState
+  version: 2
+  card: string
+  text: string
   capturedPresets: Preset[]
 }
 
 const STORAGE_KEY = 'colour-capture-state'
 
-const DEFAULT_THEME: ThemeState = {
-  cardColor: '#D0E62C', // Signal
-  textColor: '#151715',
-  cardFont: 'sf-pro-rounded',
-  cardFontWeight: 'bold',
-}
+// Signal default: signal card, near-black ink.
+const DEFAULT_CARD = '#D0E62C'
+const DEFAULT_TEXT = '#151715'
 
 const DEFAULT_PERSISTED: PersistedState = {
-  version: 1,
-  theme: DEFAULT_THEME,
+  version: 2,
+  card: DEFAULT_CARD,
+  text: DEFAULT_TEXT,
   capturedPresets: [],
 }
 
-const FONT_KEYS: FontKey[] = ['sf-pro', 'sf-pro-rounded', 'sf-mono']
 const HEX = /^#[0-9a-fA-F]{6}$/
 
-function validatePersisted(raw: unknown): PersistedState | null {
-  if (typeof raw !== 'object' || raw === null) return null
-  const obj = raw as Partial<PersistedState>
-  if (obj.version !== 1) return null
-  const t = obj.theme
-  const theme: ThemeState = {
-    cardColor: t && HEX.test(String(t.cardColor)) ? t.cardColor! : DEFAULT_THEME.cardColor,
-    textColor: t && HEX.test(String(t.textColor)) ? t.textColor! : DEFAULT_THEME.textColor,
-    cardFont:
-      t && FONT_KEYS.includes(t.cardFont as FontKey)
-        ? (t.cardFont as FontKey)
-        : DEFAULT_THEME.cardFont,
-    cardFontWeight:
-      t && (t.cardFontWeight === 'regular' || t.cardFontWeight === 'bold')
-        ? t.cardFontWeight
-        : DEFAULT_THEME.cardFontWeight,
-  }
-  const capturedPresets = Array.isArray(obj.capturedPresets)
-    ? obj.capturedPresets.filter(
+function cleanPresets(raw: unknown): Preset[] {
+  return Array.isArray(raw)
+    ? raw.filter(
         (p): p is Preset =>
           typeof p === 'object' &&
           p !== null &&
-          typeof p.id === 'string' &&
-          HEX.test(String(p.card)) &&
-          HEX.test(String(p.text)),
+          typeof (p as Preset).id === 'string' &&
+          HEX.test(String((p as Preset).card)) &&
+          HEX.test(String((p as Preset).text)),
       )
     : []
-  return { version: 1, theme, capturedPresets }
+}
+
+function validatePersisted(raw: unknown): PersistedState | null {
+  if (typeof raw !== 'object' || raw === null) return null
+  const obj = raw as Record<string, unknown>
+
+  // v2 — current shape.
+  if (obj.version === 2) {
+    return {
+      version: 2,
+      card: HEX.test(String(obj.card)) ? (obj.card as string) : DEFAULT_CARD,
+      text: HEX.test(String(obj.text)) ? (obj.text as string) : DEFAULT_TEXT,
+      capturedPresets: cleanPresets(obj.capturedPresets),
+    }
+  }
+
+  // v1 — migrate: lift theme.cardColor/textColor, drop font fields.
+  if (obj.version === 1) {
+    const t = (obj.theme ?? {}) as Record<string, unknown>
+    return {
+      version: 2,
+      card: HEX.test(String(t.cardColor)) ? (t.cardColor as string) : DEFAULT_CARD,
+      text: HEX.test(String(t.textColor)) ? (t.textColor as string) : DEFAULT_TEXT,
+      capturedPresets: cleanPresets(obj.capturedPresets),
+    }
+  }
+
+  return null
 }
 
 // ---- DialKit panel ----
@@ -93,16 +91,16 @@ export default function App() {
     DEFAULT_PERSISTED,
     validatePersisted,
   )
-  const { theme, capturedPresets } = persisted
+  const { card, text, capturedPresets } = persisted
 
-  const setTheme = useCallback(
-    (patch: Partial<ThemeState>) => {
-      setPersisted((p) => ({ ...p, theme: { ...p.theme, ...patch } }))
+  const setColours = useCallback(
+    (patch: { card?: string; text?: string }) => {
+      setPersisted((p) => ({ ...p, ...patch }))
     },
     [setPersisted],
   )
 
-  // Explore state (in-memory; the theme itself is what persists)
+  // Explore state (in-memory; the chosen colours are what persist).
   const [combos, setCombos] = useState<Combo[] | null>(null)
   const [comboIndex, setComboIndex] = useState(0)
   const [captureCount, setCaptureCount] = useState(0)
@@ -119,9 +117,9 @@ export default function App() {
       if (!list.length) return
       setCombos(list)
       setComboIndex(0)
-      setTheme({ cardColor: list[0].card, textColor: list[0].text })
+      setColours({ card: list[0].card, text: list[0].text })
     },
-    [setTheme],
+    [setColours],
   )
 
   // Kept in a ref so the DialKit action subscription always sees fresh state.
@@ -197,28 +195,34 @@ export default function App() {
     if (!combos || !combos.length) return
     const next = (comboIndex + 1) % combos.length
     setComboIndex(next)
-    setTheme({ cardColor: combos[next].card, textColor: combos[next].text })
-  }, [combos, comboIndex, setTheme])
+    setColours({ card: combos[next].card, text: combos[next].text })
+  }, [combos, comboIndex, setColours])
 
   const handleSelectPreset = useCallback(
     (preset: Preset) => {
-      setTheme({ cardColor: preset.card, textColor: preset.text })
+      setColours({ card: preset.card, text: preset.text })
     },
-    [setTheme],
+    [setColours],
   )
 
   const handleAddPreset = useCallback(() => {
     setPersisted((p) => {
-      const { list, added } = addCapturedPreset(
-        p.capturedPresets,
-        p.theme.cardColor,
-        p.theme.textColor,
-      )
+      const { list, added } = addCapturedPreset(p.capturedPresets, p.card, p.text)
       if (!added) return p
       setNewestPresetId(added.id)
       return { ...p, capturedPresets: list }
     })
   }, [setPersisted])
+
+  const handleDeletePreset = useCallback(
+    (id: string) => {
+      setPersisted((p) => ({
+        ...p,
+        capturedPresets: p.capturedPresets.filter((preset) => preset.id !== id),
+      }))
+    },
+    [setPersisted],
+  )
 
   const handlePhotoPicked = useCallback((dataUrl: string) => {
     setOverlay({ mode: 'photo', src: dataUrl })
@@ -229,40 +233,38 @@ export default function App() {
   return (
     <div className="screen">
       <div className="content">
-        <NavHeader />
         <PreviewCard
-          theme={theme}
+          cardColor={card}
+          textColor={text}
           exploreActive={!!combos && combos.length > 0}
           comboCount={combos?.length ?? 0}
           comboIndex={comboIndex}
           pulseKey={captureCount}
           onTap={handleCardTap}
         />
-        <h2 className="section-header">Colours</h2>
-        <PresetsRow
-          presets={[...capturedPresets, ...CURATED_PRESETS]}
-          selectedCard={theme.cardColor}
-          selectedText={theme.textColor}
-          newestId={newestPresetId}
-          onSelect={handleSelectPreset}
-          onAdd={handleAddPreset}
-        />
-        <CustomGroup
-          cardColor={theme.cardColor}
-          textColor={theme.textColor}
-          onCardColor={(hex) => setTheme({ cardColor: hex })}
-          onTextColor={(hex) => setTheme({ textColor: hex })}
-          onOpenCapture={() => setOverlay({ mode: 'camera' })}
-        />
-        <h2 className="section-header">Fonts</h2>
-        <FontsSection
-          font={theme.cardFont}
-          weight={theme.cardFontWeight}
-          onFontChange={(cardFont) => setTheme({ cardFont })}
-          onWeightChange={(cardFontWeight) => setTheme({ cardFontWeight })}
-        />
-        <h2 className="section-header">Icons</h2>
-        <IconsRow />
+        <section className="stack">
+          <h2 className="section-label">Presets</h2>
+          <PresetsRow
+            presets={[...capturedPresets, ...CURATED_PRESETS]}
+            selectedCard={card}
+            selectedText={text}
+            newestId={newestPresetId}
+            onSelect={handleSelectPreset}
+            onAdd={handleAddPreset}
+            onDelete={handleDeletePreset}
+          />
+        </section>
+        <section className="stack">
+          <h2 className="section-label">Controls</h2>
+          <Controls
+            cardColor={card}
+            textColor={text}
+            onCardColor={(hex) => setColours({ card: hex })}
+            onTextColor={(hex) => setColours({ text: hex })}
+            onOpenCapture={() => setOverlay({ mode: 'camera' })}
+          />
+        </section>
+        <p className="footer-line">colour capture · lexi play</p>
       </div>
       <AnimatePresence>
         {overlay && (

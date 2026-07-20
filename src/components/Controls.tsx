@@ -1,21 +1,16 @@
 import { toInputHex } from '../lib/presets'
 
-interface ColourWheelProps {
+interface ColourDotProps {
   value: string
   label: string
   onChange: (hex: string) => void
 }
 
-/** 44px colour-wheel control: conic rainbow ring, current colour centre, native picker. */
-function ColourWheel({ value, label, onChange }: ColourWheelProps) {
+/** 28px brand colour dot with the native colour picker layered over it. */
+function ColourDot({ value, label, onChange }: ColourDotProps) {
   return (
-    <span className="colour-wheel">
-      <span className="wheel-ring" aria-hidden="true" />
-      <span
-        className="wheel-centre"
-        style={{ backgroundColor: value }}
-        aria-hidden="true"
-      />
+    <span className="colour-dot">
+      <span className="colour-dot-fill" style={{ backgroundColor: value }} aria-hidden="true" />
       <input
         type="color"
         value={toInputHex(value)}
@@ -29,11 +24,11 @@ function ColourWheel({ value, label, onChange }: ColourWheelProps) {
 function EyedropperIcon() {
   return (
     <svg
-      width="22"
-      height="22"
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
-      stroke="#FFFFFF"
+      stroke="#F8F9F9"
       strokeWidth="1.8"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -54,7 +49,7 @@ interface Props {
   onOpenCapture: () => void
 }
 
-export function CustomGroup({
+export function Controls({
   cardColor,
   textColor,
   onCardColor,
@@ -62,24 +57,27 @@ export function CustomGroup({
   onOpenCapture,
 }: Props) {
   return (
-    <div className="custom-group">
-      <div className="custom-row">
-        <span className="custom-label">Card</span>
-        <ColourWheel value={cardColor} label="Card colour" onChange={onCardColor} />
+    <div className="controls">
+      <div className="control-row">
+        <span className="control-label">Card</span>
+        <ColourDot value={cardColor} label="Card colour" onChange={onCardColor} />
       </div>
-      <div className="custom-divider" aria-hidden="true" />
-      <div className="custom-row">
-        <span className="custom-label">Text</span>
-        <ColourWheel value={textColor} label="Text colour" onChange={onTextColor} />
+      <div className="control-divider" aria-hidden="true" />
+      <div className="control-row">
+        <span className="control-label">Text</span>
+        <ColourDot value={textColor} label="Text colour" onChange={onTextColor} />
       </div>
-      <div className="custom-divider" aria-hidden="true" />
+      <div className="control-divider" aria-hidden="true" />
       <button
         type="button"
-        className="capture-row-btn"
-        aria-label="Pick colours from the camera or a photo"
+        className="control-row control-row-btn"
+        aria-label="Capture colours from the camera or a photo"
         onClick={onOpenCapture}
       >
-        <EyedropperIcon />
+        <span className="control-label">Capture</span>
+        <span className="control-icon" aria-hidden="true">
+          <EyedropperIcon />
+        </span>
       </button>
     </div>
   )
