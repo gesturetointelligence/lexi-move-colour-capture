@@ -1,5 +1,13 @@
 /* Colour Capture — Lexi Play brand system (dark only). */
 
+@font-face {
+  font-family: 'Founders Grotesk';
+  src: url('/lexi-move-colour-capture/fonts/founders-grotesk-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --black: #151715;
   --white: #f8f9f9;
@@ -139,7 +147,7 @@ input:focus-visible {
   padding: 28px;
   font-size: 44px;
   line-height: 1.05;
-  font-weight: 600;
+  font-weight: 400;
   letter-spacing: -0.02em;
   text-align: left;
   background: var(--signal);
@@ -208,7 +216,7 @@ input:focus-visible {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
+  font-weight: 400;
   font-size: 17px;
   line-height: 1;
 }
@@ -428,7 +436,7 @@ input:focus-visible {
   background: var(--signal);
   color: var(--black);
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 400;
   transition: opacity 0.2s ease;
 }
 
