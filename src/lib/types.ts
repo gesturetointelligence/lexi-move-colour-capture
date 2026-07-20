@@ -27,10 +27,9 @@ export interface EngineTuning {
 }
 
 // Ravi + Wayne's preferred judging, 2026-07-20: gate wide open (aesthetics
-// over legibility), moderate-contrast peak, colour-forward. diversityDistance
-// recalibrated for the max-min selector (their 200 was set under the old
-// threshold selector, where it degraded to no-op): 100 keeps the palette-
-// crossing character while guaranteeing 8 visually distinct combos.
+// over legibility), moderate-contrast peak, colour-forward, maximum spread.
+// Under the max-min selector the distance term is capped, so 200 pushes
+// spread hard without ever drowning out score.
 export const defaultTuning: EngineTuning = {
   colorCount: 8,
   maxSamples: 40000,
