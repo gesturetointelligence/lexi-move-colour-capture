@@ -264,7 +264,6 @@ export default function App() {
             onOpenCapture={() => setOverlay({ mode: 'camera' })}
           />
         </section>
-        <p className="footer-line">colour capture · lexi play</p>
       </div>
       <AnimatePresence>
         {overlay && (

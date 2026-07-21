@@ -104,6 +104,7 @@ input:focus-visible {
   padding: 20px 20px 24px;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   gap: 26px;
 }
 
@@ -121,15 +122,6 @@ input:focus-visible {
   letter-spacing: 1.4px;
 }
 
-.footer-line {
-  margin-top: auto;
-  padding-top: 4px;
-  font-size: 12px;
-  letter-spacing: 0.4px;
-  color: var(--grey);
-  text-align: center;
-}
-
 /* ---- Hero card ---- */
 
 .hero-wrap {
@@ -140,7 +132,8 @@ input:focus-visible {
 
 .hero-card {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
+  justify-content: flex-end;
   width: 100%;
   aspect-ratio: 1158 / 1380;
   border-radius: 24px;
@@ -149,7 +142,7 @@ input:focus-visible {
   line-height: 1.05;
   font-weight: 400;
   letter-spacing: -0.02em;
-  text-align: left;
+  text-align: right;
   background: var(--signal);
   color: var(--black);
 }
