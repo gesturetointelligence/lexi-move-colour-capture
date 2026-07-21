@@ -133,7 +133,7 @@ input:focus-visible {
 .hero-card {
   display: flex;
   align-items: flex-start;
-  justify-content: flex-end;
+  justify-content: flex-start;
   width: 100%;
   aspect-ratio: 1158 / 1380;
   border-radius: 24px;
@@ -142,7 +142,7 @@ input:focus-visible {
   line-height: 1.05;
   font-weight: 400;
   letter-spacing: -0.02em;
-  text-align: right;
+  text-align: left;
   background: var(--signal);
   color: var(--black);
 }
