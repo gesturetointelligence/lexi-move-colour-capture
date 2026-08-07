@@ -85,7 +85,7 @@ Validate on read (regex the hexes, check font/weight against the known keys; dro
 - Untouched: FONTS and ICONS sections, the native ColorPicker Card/Text rows, curated preset data/order, Bold = weight 600, the locale-aware COLOURS header logic.
 - All maths algorithmic — no AI, no network calls, works offline.
 - Reduced Motion honoured on every new animation; VoiceOver labels on the (+), Capture row, and the explore card (announce "combo n of 8"); the swipe gesture must not break VoiceOver navigation of the card.
-- PostHog events matching the existing snake_case style: `colour_captured`, `combo_explored` (props: `index`), `colour_preset_added`, `colour_preset_deleted`.
+- PostHog: no new discrete events — increment the sitting's `captures` / `combos_explored` / `presets_added` / `presets_deleted` counters per `lexi-magic-posthog/sitting-schema-v2.md` (2026-08-07: Magic measures sittings, not events; a Themes action is a property of the sitting, never its own event).
 - No DialKit / tuning UI in-app — defaults are final (the web move remains the tuning rig).
 
 ## Acceptance
