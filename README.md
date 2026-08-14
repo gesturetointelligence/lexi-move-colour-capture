@@ -1,6 +1,6 @@
 # lexi-move-colour-capture
 
-Capturing card and text colours from the world — live camera and photo library — and judging them into eight best combinations, algorithmically, in the Lexi Play brand system.
+Capturing card and text colours from the world — live camera and photo library — and judging them into eight best combinations, algorithmically, in the Lexi brand language (Gloss).
 
 ---
 
