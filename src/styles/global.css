@@ -8,17 +8,43 @@
   font-display: swap;
 }
 
+/* Inter (variable) — the functional voice for UI labels/controls/captions,
+   self-hosted from the rsms/inter release per Gloss (never Google Fonts). */
+@font-face {
+  font-family: 'Inter Variable';
+  src: url('/lexi-move-colour-capture/fonts/inter-variable.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --black: #151715;
   --white: #f8f9f9;
-  --grey: #7d827e;
   --signal: #d0e62c;
+
+  /* Grey ramp (Gloss, 2026-08-14) — grey-500 is the legacy --grey primitive. */
+  --grey-50: #e6e8e7;
+  --grey-100: #d7d9d8;
+  --grey-200: #bfc2c0;
+  --grey-300: #a7aba8;
+  --grey-400: #929693;
+  --grey-500: #7d827e;
+  --grey-600: #626662;
+  --grey-700: #494c49;
+  --grey-800: #313431;
+  --grey-900: #202220;
+  --grey: var(--grey-500);
+
+  /* Muted text on this app's fixed dark ground: grey-400, 6.1:1 on #151715. */
+  --text-muted: var(--grey-400);
 
   --surface: #1e201e;
   --surface-hover: #2a2c2a;
-  --hairline: rgba(125, 130, 126, 0.2);
+  --hairline: color-mix(in srgb, var(--grey-500) 20%, transparent);
 
   --font: 'Founders Grotesk', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-ui: 'Inter Variable', -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
 * {
@@ -115,9 +141,10 @@ input:focus-visible {
 }
 
 .section-label {
-  font-size: 12px;
+  font-family: var(--font-ui);
+  font-size: 14px;
   font-weight: 500;
-  color: var(--grey);
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 1.4px;
 }
@@ -157,7 +184,7 @@ input:focus-visible {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: rgba(125, 130, 126, 0.4);
+  background: color-mix(in srgb, var(--grey-500) 40%, transparent);
   transition: background-color 0.2s ease;
 }
 
@@ -209,8 +236,9 @@ input:focus-visible {
   display: flex;
   align-items: center;
   justify-content: center;
+  font-family: var(--font-ui);
   font-weight: 400;
-  font-size: 17px;
+  font-size: 16px;
   line-height: 1;
 }
 
@@ -242,6 +270,7 @@ input:focus-visible {
   background: var(--surface);
   border: 1px solid var(--hairline);
   color: var(--white);
+  font-family: var(--font-ui);
   font-size: 13px;
   font-weight: 500;
   white-space: nowrap;
@@ -274,6 +303,7 @@ input:focus-visible {
 }
 
 .control-label {
+  font-family: var(--font-ui);
   font-size: 16px;
   color: var(--white);
 }
@@ -288,7 +318,7 @@ input:focus-visible {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: rgba(125, 130, 126, 0.18);
+  background: color-mix(in srgb, var(--grey-500) 18%, transparent);
   border: 1px solid var(--hairline);
   display: flex;
   align-items: center;
@@ -351,18 +381,19 @@ input:focus-visible {
 }
 
 .capture-title {
-  font-size: 12px;
+  font-family: var(--font-ui);
+  font-size: 14px;
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 1.4px;
-  color: var(--grey);
+  color: var(--text-muted);
 }
 
 .capture-close {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: rgba(125, 130, 126, 0.18);
+  background: color-mix(in srgb, var(--grey-500) 18%, transparent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -393,7 +424,8 @@ input:focus-visible {
 .capture-error {
   padding: 24px;
   text-align: center;
-  color: var(--grey);
+  font-family: var(--font-ui);
+  color: var(--text-muted);
   font-size: 15px;
   line-height: 1.4;
   max-width: 280px;
@@ -428,6 +460,7 @@ input:focus-visible {
   border-radius: 26px;
   background: var(--signal);
   color: var(--black);
+  font-family: var(--font-ui);
   font-size: 16px;
   font-weight: 400;
   transition: opacity 0.2s ease;
@@ -442,7 +475,7 @@ input:focus-visible {
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: rgba(125, 130, 126, 0.18);
+  background: color-mix(in srgb, var(--grey-500) 18%, transparent);
   display: flex;
   align-items: center;
   justify-content: center;
